@@ -1,12 +1,32 @@
-﻿# APAC
+# APAC
 
-Automatic parcellation of auditory cortex (APAC)
+Automated Parcellation tool for human Auditory Cortex (APAC)
 
-APAC is a lightweight module for parcellate human brain auditory cortex. It is primarily intended for dividing the auditory cortex into subregions.
+APAC is a lightweight module to parcellate human primary auditory cortex comparable to the core in non-human primates using structural MRI (myelin-sensitive index and curvature).
 
-The current version of APAC requires preprocessed T1- and T2-weighted MRI data according to the [HCP pipelines](https://github.com/Washington-University/HCPpipelines). Essentially, MyelinMaps and Curvature data are required.
+## Requirements
 
-## Code
+- Required files
+```
+*.?.sphere.*.surf.gii
+*.?.SmoothedMyelinMap_BC.*.func.gii
+*.?.curvature.*.shape.gii
+```
+The current version was developed using the data obtained from [HCP pipelines](https://github.com/Washington-University/HCPpipelines). User-specific files are approved.
+
+- Required library (python>=3.6)
+```
+nilearn
+sklearn
+scipy
+os
+glob
+numpy
+nibabel
+sklearn.mixture
+```
+
+## Implementation
 
 Install APAC with:
 
@@ -14,47 +34,47 @@ Install APAC with:
  
  Usage:
 
-Here is an example script.
 ```python
 import apac
-path_out = '/path/folder/for/output/core'
-fs_path = '/freesurfer/output/path'
-hemi = 'L' # direction of hemisphere ['L' or 'R'] 
+OutDir  = '/directory/that/output/will/be/saved'
+DaraDir = '/directory/containing/above/required/files'
 
 # initialize core processor
-ppcore = apac.core.core(path_out)
+pcore = apac.core.core(OutDir)
 
-# load freesurfer output path ("fsaveage_LR32k") 
-ppcore.call(fs_path)  
-
-# define initial ROI using HCP-MMP atlas
-ppcore.initial_roi(hemi)
+# call the input data
+pcore.call(DaraDir)  
 
 # define ppcore
-'''
-Ouput files
-- all output cifti files are algined onto midthickness surface
-[hemi].pcore.func.gii : highly myelinated region (putative core, may be two clusters) 
-[hemi].clust.func.gii : masked highly myelinated clusters
-[hemi].border.func.gii : highly myelinated region with curvature value lower than 0
-[hemi].ppcore.func.gii : final preliminary putative core
+min_out = 1  
+# 1: remain the minimum output (pcore & pcore_c)
+# 0: remain intermediate files (initial_roi, clustK, curv_border)
+pcore.def_pcore(min_out)
 
 '''
-ppcore.def_ppcore(hemi)
+Minimum ouputs
+[hemi].pcore.func.gii       : Putative core (highly myelinated region) 
+[hemi].pcore_c.func.gii     : Putative core adjusted for curvature (ideally located within Heschl's gyrus)
+
+Additiaonl outputs
+[hemi].initial_roi.func.gii : Initial ROI for parcellation
+[hemi].clustK?.func.gii     : Clusters derived from Gaussian Mixture Model with k=?
+[hemi].curv_border.func.gii : Suli border (limit of pCore expansion)
+'''
 ```
  
-
 ## License
 
 - APAC is licensed under the terms of the MIT license.
 
-## Conference
+## Related papers
 
-- 'Fully automated parcellation of the primary auditory cortex', SfN 2019 [Link](https://www.abstractsonline.com/pp8/#!/7883/presentation/50268)
+- 'Fully automated parcellation of the primary auditory cortex', Society for Neuroscience 2019 [Link](https://www.abstractsonline.com/pp8/#!/7883/presentation/50268)
 
 
-## Core development team
+## Core developers
 
-- Sean H. Lee - Max Planck Institute for empirical aesthetic
-- Bo-yong Park, MICA Lab - Montreal Neurological Institute
-- Kyoungseob Byeon, MIPL - Sunkyunkwan University
+- Kyoungseob Byeon: MIP Lab, Sunkyunkwan University
+- Bo-yong Park: MICA Lab, Montreal Neurological Institute and Hospital
+- Sean H. Lee: Max Planck Institute for Empirical Aesthetics
+
