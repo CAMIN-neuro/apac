@@ -27,10 +27,6 @@ sklearn.mixture
 ```
 
 ## Implementation
-
-Install APAC with:
-
-`pip install apac`
  
  Usage:
 
